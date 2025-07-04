@@ -1,15 +1,22 @@
 import { ethers } from "hardhat";
 import { expect } from "chai";
+import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 
 describe("ERC20", function () {
-  it("transfer tokens correctly", async function () {
-    const [alice, bob] = await ethers.getSigners();
+  let alice: HardhatEthersSigner;
+  let bob: HardhatEthersSigner;
+  let erc20Token: any;
+
+  this.beforeEach(async function () {
+    [alice, bob] = await ethers.getSigners();
 
     const ERC20 = await ethers.getContractFactory("ERC20Mock");
-    const erc20Token = await ERC20.deploy("Yourmix", "YOM", 18);
+    erc20Token = await ERC20.deploy("Yourmix", "YOM", 18);
 
     await erc20Token.mint(alice.address, 300);
+  });
 
+  it("transfer tokens correctly", async function () {
     // logging balances before transfer
     console.log(
       "Alice balance here is",
@@ -28,26 +35,12 @@ describe("ERC20", function () {
   });
 
   it("should revert if sender has insufficient balance", async function () {
-    const [alice, bob] = await ethers.getSigners();
-
-    const ERC20 = await ethers.getContractFactory("ERC20Mock");
-    const erc20Token = await ERC20.deploy("Yourmix", "YOM", 18);
-
-    await erc20Token.mint(alice.address, 300);
-
     await expect(erc20Token.transfer(bob.address, 400)).to.be.revertedWith(
       "ERC20: transfer amount exceeds balance"
     );
   });
 
   it.only("should emit Transfer event on transfers", async function () {
-    const [alice, bob] = await ethers.getSigners();
-
-    const ERC20 = await ethers.getContractFactory("ERC20Mock");
-    const erc20Token = await ERC20.deploy("Yourmix", "YOM", 18);
-
-    await erc20Token.mint(alice.address, 300);
-
     await expect(erc20Token.transfer(bob.address, 200)).to.emit(
       erc20Token,
       "Transfer"
