@@ -10,10 +10,21 @@ describe("ERC20", function () {
 
     await erc20Token.mint(alice.address, 300);
 
+    // logging balances before transfer
+    console.log(
+      "Alice balance here is",
+      (await erc20Token.balanceOf(alice.address)).toString()
+    );
+
     expect(await erc20Token.transfer(bob.address, 100)).to.changeTokenBalance(
       erc20Token,
       [alice, bob],
       [-100, 100]
     );
+
+    
+    expect(
+      await erc20Token.connect(bob).transfer(alice.address, 50)
+    ).to.changeTokenBalance(erc20Token, [alice, bob], [50, -50]);
   });
 });
