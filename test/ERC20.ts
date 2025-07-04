@@ -10,12 +10,10 @@ describe("ERC20", function () {
 
     await erc20Token.mint(alice.address, 300);
 
-    await erc20Token.transfer(bob.address, 100);
-
-    const aliceBalance = await erc20Token.balanceOf(alice.address);
-    const bobBalance = await erc20Token.balanceOf(bob.address);
-
-    expect(aliceBalance).to.equals(200);
-    expect(bobBalance).to.equals(100);
+    expect(await erc20Token.transfer(bob.address, 100)).to.changeTokenBalance(
+      erc20Token,
+      [alice, bob],
+      [-100, 100]
+    );
   });
 });
